@@ -152,8 +152,8 @@ $ git commit -m 'add goodbye'
 $ git cat-file -p HEAD
 tree f51ccf26d3de80812e99db8abe654074786b39f0
 parent e4f4a712740c385e0da4eefefee96f6ccbe07f2d
-author eiji-noguchi <eiji.program@gmail.com> 1549774515 +0900
-committer eiji-noguchi <eiji.program@gmail.com> 1549774515 +0900
+author eiji-noguchi <github@example.com> 1549774515 +0900
+committer eiji-noguchi <github@example.com> 1549774515 +0900
 
   add goodbye
 $ git cat-file -p master^{tree}
