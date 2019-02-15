@@ -4,16 +4,23 @@
 https://gitforwindows.org/ よりインストール（設定は初期でOK）
 ## Gitの確認
 ターミナル（Git Bash）を開く。以下コマンドを入力
-- $ git version
+```
+$ git version
+```
 
 ## gitの初期設定
 ### Gitの設定ファイルは以下三種類
-- system  当該マシンの全ユーザに関する設定
-- global  当該ユーザに関する設定
-- local   特例のディレクトリ（リポジトリ）に関する設定
+|設定ファイル  |概要  |
+|---|---|
+|system  |当該マシンの全ユーザに関する設定  |
+|global  |当該ユーザに関する設定  |
+|local  |特例のディレクトリ（リポジトリ）に関する設定  |
 
-### 今回はglobalの設定を行う  
-- $ git config --global user.name "github user.name"  //githubのユーザネーム  
+### 今回はglobalの設定を行う
+githubのユーザネーム  
+```markdown:基本的なテーブル
+- $ git config --global user.name "github user.name"
+```
 - $ git config --global use.email github@example.com  //githubのメアド  
 - $ git config --global core.editor "atom --wait"     //gitで使うエディタ vs codeなら"code --wait"  
 
