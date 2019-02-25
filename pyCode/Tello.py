@@ -10,8 +10,8 @@ import socket
 import sys
 import time
 from msvcrt import getch
-from module import key
-#from module import jsonKey
+#from module import key
+from module import jsonKey
 
 host = ''
 port = 9000
@@ -47,8 +47,8 @@ recvThread.start()
 while True: 
 
     try:
-        msg = key.getCommand(getch())
-        #msg = jsonKey.getCommand(getch())
+        #msg = key.getCommand(getch())
+        msg = jsonKey.getCommand(getch())
         print(msg)
 
         if not msg:
