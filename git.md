@@ -404,6 +404,7 @@ $ echo 'feature' >feature.txt
                     {feature}<--{HEAD}
 ```
 再度ブランチをmasterブランチへ切り替え、同じように`ls`コマンドでファイルを確認する。すると、先ほど作成したfeature.txtファイルは存在していない。
+これはmasterブランチが指しているコミットファイルとfeatureブランチが指しているコミットファイルが異なるからである。
 同じようにmasterブランチでも新規ファイルを作成してみよう。
 ```
 $ echo 'master' >master.txt
