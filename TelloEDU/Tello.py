@@ -31,8 +31,10 @@ def recv():
     count = 0
     while True: 
         try:
-            data, server = sock.recvfrom(1518)
+            data, server = sock.recvfrom(2048)
             print("Telloからの返事",data.decode(encoding="utf-8"))
+            print("data",data)
+            print("server",server)
 
             # 画像取得処理
             cap = cv2.VideoCapture('udp://127.0.0.1:11111')
