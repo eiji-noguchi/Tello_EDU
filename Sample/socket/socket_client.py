@@ -5,6 +5,7 @@ PORT = 7777
 BUFFER_SIZE = 2048
 local = (LOCALHOST, PORT)
 
+# TCP
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clientSocket:
     # 引数のアドレスで示されるリモートソケットに接続する
     clientSocket.connect(local)

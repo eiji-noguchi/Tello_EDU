@@ -24,9 +24,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serverSocket:
         try:
             print("クライアントから接続されました")
             # クライアントからバイト型を受け取る
+            # 一度に受信するデータ量は引数で指定する
             data = clientsocket.recv(BUFFER_SIZE)
             print(data.decode())
             # クライアントへ返す
-            clientsocket.send(data)
+        
+            clientsocket.send("天馬＜".encode() + data)
         finally:
             clientsocket.close()
