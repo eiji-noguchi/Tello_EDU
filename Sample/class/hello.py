@@ -11,17 +11,5 @@ def aisatsu(h):
 def test(a, b):
     sum = a + b
     sub = a - b
-
-    return sum, sub
-
-sum, sub = test(20, 15)
-print(sub)
-print(sum)
-# 30
-
-ans = test(20, 15)
-print(ans)
-print(ans[0])
-print(ans[1])
-# 30
+    return sum,sub
 
