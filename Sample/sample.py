@@ -13,10 +13,14 @@ print(type(inp))
 print(type(inp.encode()))
 """
 
-
-from msvcrt import getch
-msg = chr(ord(getch()))
-print(msg)
+while True:
+    from msvcrt import getch
+    msg = getch()
+    msgOrd = ord(msg)
+    msgChr = chr(msgOrd)
+    print(msg)
+    print(msgOrd)
+    print(msgChr)
 
 """
 def f(x=2):
