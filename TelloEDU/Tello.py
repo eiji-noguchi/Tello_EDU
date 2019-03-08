@@ -19,33 +19,40 @@ port = 9000
 locaddr = (host,port) 
 
 
-# Create a UDP socket
+# UDP通信のためのソケットオブジェクトの生成
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 tello_address = ('192.168.10.1', 8889)
 tello_video_port = 11111
-
+# ソケットを指定したアドレスと結びつける
 sock.bind(locaddr)
 
+# Telloからの通信を受け取る
 def recv():
     count = 0
     while True: 
         try:
             data, server = sock.recvfrom(2048)
             print("Telloからの返事",data.decode(encoding="utf-8"))
-            print("data",data)
-            print("server",server)
 
             # 画像取得処理
+            # VideoCapture 型のオブジェクトを生成
             cap = cv2.VideoCapture('udp://127.0.0.1:11111')
-            while(cap.isOpened()):
+            while(cap.isOpened()): #カメラデバイスが正常にオープンしてるかの確認
+                # VideoCaptureから1フレーム読み込む
+                # retにはboolが、frameにはフレーム情報が返ってくる
                 ret, frame = cap.read()
 
                 #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
+                # 画像をウィンドウ上に表示する
                 cv2.imshow('frame',frame)
-                if cv2.waitKey(10) & 0xFF == ord('q'):
+                
+                # qキーでVideoCaptureの終了
+                if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+            # キャプチャをリリースして、ウィンドウをすべて閉じる
+            cap.release()
+            cv2.destroyAllWindows()
 
                     
         except Exception:
@@ -53,19 +60,16 @@ def recv():
             break
 
 
-print ('\r\n\r\nスペースキーで離着陸できるよ(/・ω・)/\r\n')
+print ('\r\n\r\nエンターキーで離陸、スペースキーで着陸だよ(/・ω・)/\r\n')
 
 
-
-#recvThread create
+# Telloの操作と受信を並列に処理する
 recvThread = threading.Thread(target=recv)
 recvThread.start()
-
 
 while True: 
 
     try:
-        #msg = key.getCommand(getch())
         msg = jsonKey.getCommand(getch())
         print(msg)
 

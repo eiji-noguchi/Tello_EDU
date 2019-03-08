@@ -1,3 +1,4 @@
+'''未使用
 from msvcrt import getch
 
 def getCommand(getch):
@@ -24,3 +25,4 @@ def getCommand(getch):
         return input("コマンドを入力してね( *´艸｀)\r\n")
     else:
         return key
+'''
