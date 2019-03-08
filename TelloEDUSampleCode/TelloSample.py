@@ -29,6 +29,8 @@ def recv():
     while True: 
         try:
             data, server = sock.recvfrom(1518)  #Telloからデータを受け取る
+            print("data",data)
+            print("server",server)
             print(data.decode(encoding="utf-8"))
         except Exception:
             print ('\nExit . . .\n')
