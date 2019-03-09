@@ -1,5 +1,5 @@
 {
-    "\r":"takeoff",
+    "\r":"ntakeoff",
     " ":"land",
     "q": "up 20",
     "e": "down 20",

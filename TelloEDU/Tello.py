@@ -10,7 +10,6 @@ import socket
 import sys
 import time
 from msvcrt import getch
-#from module import key
 from module import jsonKey
 import cv2
 
@@ -32,29 +31,34 @@ def recv():
     count = 0
     while True: 
         try:
+            # Telloからバイト型を受け取る
+            # 一度に受信するデータ量は引数で指定する
             data, server = sock.recvfrom(2048)
-            print("Telloからの返事",data.decode(encoding="utf-8"))
+            res = data.decode(encoding="utf-8")
+            print("Telloからの返事",res)
 
-            # 画像取得処理
-            # VideoCapture 型のオブジェクトを生成
-            cap = cv2.VideoCapture('udp://127.0.0.1:11111')
-            while(cap.isOpened()): #カメラデバイスが正常にオープンしてるかの確認
-                # VideoCaptureから1フレーム読み込む
-                # retにはboolが、frameにはフレーム情報が返ってくる
-                ret, frame = cap.read()
+            if(msg == "streamon" and res == "ok"):
+                print("カメラスタート")
+                # 画像取得処理
+                # VideoCapture型のオブジェクトを生成
+                cap = cv2.VideoCapture('udp://127.0.0.1:11111')
+                while(cap.isOpened()): #カメラデバイスが正常にオープンしてるかの確認
+                    # VideoCaptureから1フレーム読み込む
+                    # retにはboolが、frameにはフレーム情報が返ってくる
+                    ret, frame = cap.read()
 
-                #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                # 画像をウィンドウ上に表示する
-                cv2.imshow('frame',frame)
-                
-                # qキーでVideoCaptureの終了
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            # キャプチャをリリースして、ウィンドウをすべて閉じる
-            cap.release()
-            cv2.destroyAllWindows()
-
+                    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    # 画像をウィンドウ上に表示する
+                    cv2.imshow('frame',frame)
                     
+                    # qキーでVideoCaptureの終了
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                # キャプチャをリリースして、ウィンドウをすべて閉じる
+                cap.release()
+                cv2.destroyAllWindows()
+            
+            
         except Exception:
             print ('\nExit . . .\n')
             break
@@ -82,8 +86,8 @@ while True:
             break
 
         # Send data
-        msg = msg.encode(encoding="utf-8") 
-        sent = sock.sendto(msg, tello_address)
+        
+        sent = sock.sendto(msg.encode(encoding="utf-8"), tello_address)
     except KeyboardInterrupt:
         print ('\n . . .\n')
         sock.close()  
