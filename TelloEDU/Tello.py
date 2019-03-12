@@ -22,7 +22,7 @@ locaddr = (host,port)
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 tello_address = ('192.168.10.1', 8889)
-tello_video_port = 11111
+
 # ソケットを指定したアドレスと結びつける
 sock.bind(locaddr)
 
@@ -38,38 +38,43 @@ def recv():
             print("Telloからの返事",res)
 
             if(msg == "streamon" and res == "ok"):
+                #videoメソッドの呼び出し
                 print("カメラスタート")
-                # 画像取得処理
-                # VideoCapture型のオブジェクトを生成
-                cap = cv2.VideoCapture('udp://127.0.0.1:11111')
-                while(cap.isOpened()): #カメラデバイスが正常にオープンしてるかの確認
-                    # VideoCaptureから1フレーム読み込む
-                    # retにはboolが、frameにはフレーム情報が返ってくる
-                    ret, frame = cap.read()
-
-                    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    # 画像をウィンドウ上に表示する
-                    cv2.imshow('frame',frame)
-                    
-                    # qキーでVideoCaptureの終了
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
-                # キャプチャをリリースして、ウィンドウをすべて閉じる
-                cap.release()
-                cv2.destroyAllWindows()
-            
-            
+                video_thread = threading.Thread(target=video())
+                video_thread.start()
+                           
         except Exception:
             print ('\nExit . . .\n')
             break
 
 
+# 画像取得処理
+def video():     
+    # 画像取得処理
+    # VideoCapture型のオブジェクトを生成
+    cap = cv2.VideoCapture('udp://127.0.0.1:11111')
+    while(cap.isOpened()): #カメラデバイスが正常にオープンしてるかの確認
+        # VideoCaptureから1フレーム読み込む
+        # retにはboolが、frameにはフレーム情報が返ってくる
+        ret, frame = cap.read()
+
+        #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # 画像をウィンドウ上に表示する
+        cv2.imshow('Tello',frame)
+        
+        # qキーでVideoCaptureの終了
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    # キャプチャをリリースして、ウィンドウをすべて閉じる
+    cap.release()
+    cv2.destroyAllWindows()
+
+
 print ('\r\n\r\nエンターキーで離陸、スペースキーで着陸だよ(/・ω・)/\r\n')
 
-
 # Telloの操作と受信を並列に処理する
-recvThread = threading.Thread(target=recv)
-recvThread.start()
+recv_thread = threading.Thread(target=recv)
+recv_thread.start()
 
 while True: 
 
@@ -85,8 +90,7 @@ while True:
             sock.close()  
             break
 
-        # Send data
-        
+        # Telloへ入力されたデータを送る
         sent = sock.sendto(msg.encode(encoding="utf-8"), tello_address)
     except KeyboardInterrupt:
         print ('\n . . .\n')
