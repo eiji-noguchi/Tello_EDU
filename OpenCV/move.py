@@ -33,5 +33,5 @@ while(cap.isOpened()): #ビデオキャプチャが正常にオープンして�
 
 # キャプチャをリリースして、ウィンドウをすべて閉じる
 cap.release()
-out.release()
+writer.release()
 cv2.destroyAllWindows()
