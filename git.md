@@ -309,8 +309,8 @@ HEADは今自分が作業しているブランチを指しているポインタ�
           {master}<--{HEAD}
               ↓
       [コミットファイル4]
-           __/
-          ↓
+           /
+          └
   [コミットファイル3]
           ↑
       {feature}
@@ -321,11 +321,11 @@ HEADは今自分が作業しているブランチを指しているポインタ�
           {master}
               ↓
         [コミットファイル4]
-            __/
-          ↓
+           /
+          └
   [コミットファイル3]
-          ↑__
-              \
+          ┌
+           \
         [コミットファイル5]<---[コミットファイル6]
                                       ↑
                                   {feature}<--{HEAD}
@@ -398,8 +398,8 @@ $ echo 'feature' >feature.txt
         {master}
           ↓
   [コミットファイル]
-          ↑__
-              \
+          ┌
+           \
         [コミットファイル(feature.txtの追加)]
                         ↑
                     {feature}<--{HEAD}
@@ -416,11 +416,11 @@ $ echo 'master' >master.txt
                     {master}<--{HEAD}
                         ↓
         [コミットファイル(master.txtの追加)]
-            __/
-          ↓
+           /
+          └
   [コミットファイル]
-          ↑__
-              \
+          ┌
+           \
         [コミットファイル(feature.txtの追加)]
                         ↑
                     {feature}
@@ -431,6 +431,212 @@ $ echo 'master' >master.txt
 $ git push origin feature
 ```
 これでGitHub上でもそれぞれのブランチの中身を確認できるようになる。
+
+## 変更のマージ
+それぞれのブランチで作業した変更点を作業中のブランチにマージするには書きコマンドを使う。
+```
+$ git merge <ブランチ名>
+$ git merge <リモート名/ブランチ名>
+```
+<ブランチ名>には現在作業中のブランチに変更をマージしたいブランチを指定する。
+マージには3種類ある。
+|マージ |概要 |
+|---|---|
+|Fast Foward（早送りになるマージ）|切ったブランチがmasterブランチの変更をすべて含むときに行われるマージ。つまり、分岐後に、元ブランチAにおいて変更がないときに行われるマージのこと。|
+|Auto Merge（基本的なマージ）|枝分かれして開発していた場合、マージコミットという新しいコミットを作る。|
+|conflict|複数人が同じファイルの同じ行に対してそれぞれの変更を行った際に生じる。|
+
+
+### Fast Foward
+もういちいちコミットファイルって書くのめんどくさいから、コミットをアルファベット示すよ！！  
+マージ前
+```
+    ｛master｝
+        ↓
+A<--B<--C
+         ┌
+          \
+            D<--E  
+                ↑
+            ｛feature｝
+```
+マージ後
+```
+            ｛master｝
+                ↓
+            ｛feature｝
+                ↓
+A<--B<--C<--D<--E
+```
+masterブランチのポインタが前に進んだだけになる。
+実際に動きを見てみよう。GitHub上で新規ファイルを作成し、それをローカルに`pull`してみる。
+```
+$ git pull origin master
+      :
+From <リモートリポジトリ>
+ * branch            master     -> FETCH_HEAD
+   5190fae..a4f91da  master     -> origin/master
+Updating 5190fae..a4f91da
+Fast-forward
+      :
+```
+このようにpullを行った際、`Fast-forward`をしたよって言ってるね。
+`git log --oneline`コマンドでもGitHubでのコミットログを確認してみよう。GitHub上でしたコミットをmasterブランチのポインタがさしているのが分かるだろう。
+
+### Auto Merge
+マージ前
+```
+        ｛master｝
+            ↓
+            E
+          /
+         └
+A<--B<--C
+         ┌
+          \
+            D
+            ↑
+        ｛feature｝
+```
+マージ後
+```
+              ｛master｝
+                 ↓
+            E<---F(マージコミット)
+          /     ｜
+         └      /
+A<--B<--C      /
+         ┌    /
+          \  └
+            D
+            ↑
+        ｛feature｝
+```
+新しくマージコミットが作られ、マージしたブランチのポインタはマージコミットを指す。
+マージコミットは親コミットを2つ持っていることが特徴である。
+実際に動きを見てみよう。ブランチを切り、新規ブランチ上でファイルに変更を加える。変更をコミットした後masterブランチに戻り、マージを行う。
+```
+$ git merge <ブランチ名>
+Merge made by the 'recursive' strategy.
+      :
+```
+そうするとマージできたよって言ってくれるので、`git log --oneline`コマンドでもGitHubでのコミットログを確認してみよう。
+コミットログを確認すると、先ほどのFast Fowardと違い、分岐したブランチのコミットの後にマージコミットがあることが分かる。
+ついでに`git cat-file -p HEAD`でマージコミットがもつ親を見てみよう。親が2つあるはずだね。
+
+### conflict
+マージ前
+```
+        ｛master｝
+            ↓
+            E(index.htmlの5行目を変更)
+          /
+         └
+A<--B<--C
+         ┌
+          \
+            D(index.htmlの5行目を変更)
+            ↑
+        ｛feature｝
+```
+マージしようと思ったら、、、
+```
+              ｛master｝
+                 ↓
+            E<---F(CONFILICT((+_+)))
+          /     ｜
+         └      /
+A<--B<--C      /
+         ┌    /
+          \  └
+            D
+            ↑
+        ｛feature｝
+```
+どっちのブランチの変更を取り入れればよいか分からない(´◉◞౪◟◉)  
+ではconflictの解決方法を覚えよう！！  
+簡単。conflictが起きたらどっちの変更を残すか教えてあげればいいんだ。  
+実際に見てみよう。  
+featureブランチを切り、それぞれから同じファイルの同じ行を編集し、それぞれコミットを行う。その後masterブランチへマージしてみよう。
+```
+$ git merge feature
+Auto-merging <conflictファイル>
+CONFLICT (content): Merge conflict in <conflictファイル>
+Automatic merge failed; fix conflicts and then commit the result.
+```
+このようにAuto Mergeが失敗したメッセージが表示される。`git status`からも見てみると
+```
+$ git status
+      :
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+        both modified:   index.html
+      :
+```
+となっており、`index.html`がマージできていないことが確認できる。
+この時conflictが生じたファイルを確認すると
+```
+<<<<<<< HEAD
+masterから編集
+=======
+featureから編集
+>>>>>>> feature
+```
+となっている。上の`HEAD`が現在いるブランチの変更、下の`feature`がfeatureブランチで変更された内容である。  
+このとき残したい変更をファイルに残し、他を削除すればよい。
+```
+masterから編集
+```
+これを再びコミットすればconflictは解消される。  
+以上がそれぞれのマージの方法である。
+
+##  理想的なブランチを利用した開発の流れ
+masterブランチは常に最新に、開発は別ブランチで行う。
+```
+    B(開発)        F(開発)
+   /  ┌          /
+  └    \        └
+A<------D<-----E
+  ┌           /
+   \         / 
+    C(開発)<-
+```
+
+##  リモートブランチとは
+```
+【リモートリポジトリ】
+    A<--B<-{mster}
+    ┌
+     \
+      C<-{feature}
+
+【ローカルリポジトリ】
+｛master｝
+    ↓
+    A<--D
+        ↑
+      {topic}
+```
+このようなリモートリポジトリとローカルリポジトリがあるとする。複数人での開発では自分以外の人がリモートリポジトリにpushした場合、リモートとローカルのリポジトリでmasterが指すコミットファイルが異なることがある。  
+この時`git fetch`コマンドでリモートから情報を取得すると
+```
+【リモートリポジトリ】
+    A<--B<-{mster}
+    ┌
+     \
+      C<-{feature}
+
+【ローカルリポジトリ】
+       B<-{origin/master}
+      /
+     └
+    A{master}<--C<-{origin/feature}
+     ┌
+      \
+       D<-{topic}
+```
+となる。つまりはリモートブランチは`<リモート>/<ブランチ>`で参照できる。
 
 # 備考
 ##  Gitコマンドメモ
@@ -499,7 +705,18 @@ git reset HEAD <ファイル名>
 ```
 git commit --amend  //現在のステージの内容で、直前のコミットを上書きする ※push後には使ってはいけない
 ```
-- ローカルのブランチの削除
+- ローカルブランチの名前の変更
 ```
-git branch --delete test
+git branch --move <新規ブランチ名>
+git branch -m  <新規ブランチ名>
 ```
+- ローカルのブランチの削除（masterにマージされていない変更が残っている場合削除されない）
+```
+git branch --delete <ブランチ名>
+git branch -d <ブランチ名>
+```
+- ローカルのブランチの削除（強制削除）
+```
+git branch -D <ブランチ名>
+```
+
