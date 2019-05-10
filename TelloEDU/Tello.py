@@ -79,6 +79,7 @@ recv_thread.start()
 while True: 
 
     try:
+        # キー入力
         msg = jsonKey.getCommand(getch())
         print(msg)
 
