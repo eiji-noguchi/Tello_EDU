@@ -30,7 +30,7 @@ while(cap.isOpened()):
 
     if ret == True:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(30, 30))
         if len(faces)>0:
             face_x = faces[0][0]
             face_y = faces[0][1]
@@ -46,15 +46,23 @@ while(cap.isOpened()):
             # フレームの中心と顔の中心座標の差を取得
             diff_x = frame_center_x - face_center_x
             diff_y = frame_center_y - face_center_y
+            # 顔のズーム状況
+            zoom_x = face_w / frame_w
+            zoom_y = face_h / frame_h
 
+            # 顔の位置によって情報を表示
             if diff_x > 30:
-                print("👈")
+                print("←")
             if diff_x < -30:
-                print("👉")
+                print("→")
             if diff_y > 30:
-                print("👆")
+                print("↑")
             if diff_y < -30:
-                print("👇")
+                print("↓")
+            if zoom_x >= 0.3:
+                print("顔近い")
+            if zoom_y >= 0.3:
+                print("顔大きい")
         
         for (x,y,w,h) in faces:
             frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
