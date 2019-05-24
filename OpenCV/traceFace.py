@@ -30,7 +30,7 @@ while(cap.isOpened()):
 
     if ret == True:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(30, 30))
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(100, 100))
         if len(faces)>0:
             face_x = faces[0][0]
             face_y = faces[0][1]
@@ -65,6 +65,7 @@ while(cap.isOpened()):
                 print("顔大きい")
         
         for (x,y,w,h) in faces:
+            # 認識している顔に線を引く
             frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
         
         cv2.imshow('frame',frame)
