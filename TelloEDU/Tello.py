@@ -45,6 +45,7 @@ def recv():
                 video_thread.start()
                            
         except Exception:
+            print(Exception)
             print ('\nExit . . .\n')
             break
 
@@ -53,7 +54,7 @@ def recv():
 def video():     
     # 画像取得処理
     # 顔カスケード取得
-    face_cascade = cv2.CascadeClassifier(r'C:\Users\user\AppData\Local\Programs\Python\Python37\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
+    face_cascade = cv2.CascadeClassifier(r'C:\Users\eiji.noguchi\AppData\Local\Programs\Python\Python37\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
     # VideoCapture型のオブジェクトを生成
     cap = cv2.VideoCapture('udp://127.0.0.1:11111')
     # 幅
@@ -85,15 +86,14 @@ def video():
 
         if ret == True:
             i += 1
-            # 4フレーム毎に顔認識処理を実行
-            if i%25 == 0:
+            # 125フレーム毎に顔認識処理を実行
+            if i%125 == 0:
                 # 映像をグレー化
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 # 顔認識
-                faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(100, 100))
+                faces = face_cascade.detectMultiScale(gray, 1.3, 5, minSize=(30, 30))
                 if len(faces)>0:
                     # 顔があった場合
-                    print("顔認証中")
                     face_x = faces[0][0]
                     face_y = faces[0][1]
                     face_w = faces[0][2]
@@ -110,27 +110,30 @@ def video():
                     diff_y = frame_center_y - face_center_y
                     # 顔のズーム状況
                     zoom_w = face_w / frame_w
-                    zoom_h = face_h / frame_h
+                    # zoom_h = face_h / frame_h
 
                     # 顔の位置によって情報を表示
+                    move_x = "0"
+                    move_y = "0"
+                    move_z = "0"
                     if diff_x > 30:
-                        # print("←")
-                        move_x = "-30"
+                        # ドローンを右に動かす
+                        move_y = "20"
                     if diff_x < -30:
-                        # print("→")
-                        move_x = "30"
+                        # ドローンを左に動かす
+                        move_y = "-20"
                     if diff_y > 30:
-                        # print("↑")
-                        move_y = "-30"
+                        # ドローンを上に動かす
+                        move_z = "20"
                     if diff_y < -30:
-                        # print("↓")
-                        move_y = "30"
-                    if zoom_w >= 0.3:
-                        # print("顔近い")
-                        move_z = "-30"
-                    if zoom_h >= 0.3:
-                        # print("顔大きい")
-                        move_z = "30" 
+                        # ドローンを下に動かす
+                        move_z = "-20"
+                    if zoom_w > 0.3:
+                        # ドローンを後ろに動かす
+                        move_x = "-20"
+                    # if zoom_w < 0.3:
+                    #     # ドローンを前に動かす
+                    #     move_x = "20" 
                     
                     # 指定したxyz軸に移動するコマンドを作成
                     move_speed = "50"
@@ -141,11 +144,9 @@ def video():
                     
                 for (x,y,w,h) in faces:
                     # 認識している顔に線を引く
-                    frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+                    frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),10)
                                
-                if i > 300:
                     i = 0
-            print("顔無し")
                     
             # 画像をウィンドウ上に表示する
             cv2.imshow('frame',frame)

@@ -1,6 +1,6 @@
 {
-    "\r":"ntakeoff",
-    " ":"land",
+    "\r": "takeoff",
+    " ": "land",
     "q": "up 20",
     "e": "down 20",
     "w": "forward 20",
@@ -10,5 +10,9 @@
     "c": "command",
     "b": "battery?",
     "k": "streamon",
-    "q": "end"
+    "b": "battery?",
+    "q": "end",
+    "n": "go 30 0 0 50",
+    "m": "go 0 30 0 50",
+    "j": "go 0 0 30 50"
 }
