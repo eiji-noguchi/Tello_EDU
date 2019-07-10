@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import datetime
 
 # VideoCapture 型のオブジェクトを生成
 # 引数にはPCに接続されているカメラのデバイス番号（PC内蔵カメラの場合は0,USBカメラなら1）か読み込みたい動画ファイルのファイル名を指定
@@ -9,9 +10,10 @@ cap = cv2.VideoCapture(0)
 
 #録画用データフォーマットを一意に識別するための4バイトの並びを指定??
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
+day = datetime.datetime.today().strftime("%Y%m%d%H%M%S")
 # VideoWriter 型のオブジェクトを生成
-# 第一引数：保存ファイル名、第二引数：FourCCコード??、第三引数：フレームレート、第四引数：カラーフラグ??
-writer = cv2.VideoWriter('C:/Drone/Recode/ROKUGA.avi', fourcc, 30.0, (640,480))
+# 第一引数：保存ファイル名、第二引数：FourCCコード??、第三引数：フレームレート、第四引数：フレームサイズ
+writer = cv2.VideoWriter('C:/Drone/Recode/ROKUGA' + day + '.avi', fourcc, 30.0, (640,480))
 
 while(cap.isOpened()): #ビデオキャプチャが正常にオープンしているかの確認
     # VideoCaptureから1フレーム読み込む

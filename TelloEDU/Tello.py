@@ -13,6 +13,7 @@ from msvcrt import getch
 from module import jsonKey
 import cv2
 import numpy as np
+import datetime
 
 host = ''
 port = 9000
@@ -46,7 +47,7 @@ def recv():
                            
         except Exception:
             print(Exception)
-            print ('\nExit . . .\n')
+            print ('\nバイバイ . . .\n')
             break
 
 # 画像取得処理
@@ -56,6 +57,11 @@ def video():
     face_cascade = cv2.CascadeClassifier(r'C:\Users\user\AppData\Local\Programs\Python\Python37\Lib\site-packages\cv2\data\haarcascade_frontalface_default.xml')
     # VideoCapture型のオブジェクトを生成
     cap = cv2.VideoCapture('udp://127.0.0.1:11111')
+    day = datetime.datetime.today().strftime("%Y%m%d%H%M%S")
+    # 録画用データフォーマット指定
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    # VideoWriter 型のオブジェクトを生成
+    writer = cv2.VideoWriter('C:/Drone/Recode/ROKUGA' + day + '.avi', fourcc, 25.0, (960,720))
     # 幅
     frame_w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     # 高さ
@@ -85,8 +91,10 @@ def video():
 
         if ret == True:
             # 映像が取得できた場合
+            # 録画
+            writer.write(frame)
             i += 1
-            # 125フレーム毎に顔認識処理を実行
+            # 指定したフレーム毎に顔認識処理を実行 送られてくる動画は25FPS
             if i%5 == 0:
                 # 映像をグレー化
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -112,36 +120,32 @@ def video():
                     # 顔のズーム状況
                     zoom_w = face_w / frame_w
                     # zoom_h = face_h / frame_h
+                    #print(zoom_w)
 
                     # 顔の位置によって情報を表示
                     move_x = "0"
                     move_y = "0"
                     move_z = "0"
-                    if diff_x > 30:
-                        # ドローンを左に動かす(cm)
-                        move_y = "50"
-                    if diff_x < -30:
-                        # ドローンを右に動かす
-                        move_y = "-50"
-                    if diff_y >= 150:
-                        # ドローンを上に動かす
-                        move_z = "20"
-                    if diff_y < -30:
-                        # ドローンを下に動かす
-                        move_z = "-20"
-                    if zoom_w > 0.3:
+                    # if diff_y >= 150:
+                    #     # ドローンを上に動かす
+                    #     move_z = "20"
+                    # if diff_y < -30:
+                    #     # ドローンを下に動かす
+                    #     move_z = "-20"
+                    if zoom_w > 0.16:
                         # ドローンを後ろに動かす
-                        move_x = "-50"
-                        print("近い")
-                    if zoom_w < 0.1:
+                        move_x = "-45"
+                        #print("後退")
+                    if zoom_w < 0.12:
                         # ドローンを前に動かす
-                        move_x = "50"
+                        move_x = "45"
+                        #print("前進")
                         
                     # ドローンの移動スピード(cm/s)
                     move_speed = "100"
                     # 指定したxyz軸に移動するコマンドを作成
                     move_xyz = "go " + move_x + " " + move_y + " " + move_z + " " + move_speed
-                    print(move_xyz)
+                    #print(move_xyz)
                     # Telloへ送信
                     sock.sendto(move_xyz.encode(encoding="utf-8"), tello_address)
                     
@@ -160,6 +164,7 @@ def video():
 
     # キャプチャをリリースして、ウィンドウをすべて閉じる
     cap.release()
+    writer.release()
     cv2.destroyAllWindows()
 
 
@@ -179,13 +184,13 @@ while True:
             break  
 
         if 'end' in msg:
-            print ('...')
+            print ('end')
             sock.close()  
             break
 
         # Telloへ入力されたデータを送る
         sock.sendto(msg.encode(encoding="utf-8"), tello_address)
     except KeyboardInterrupt:
-        print ('\n . . .\n')
+        print ('\nキーインプットエラー\n')
         sock.close()  
         break
